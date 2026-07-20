@@ -49,6 +49,7 @@ docker compose up -d
 docker build -t jizhang .
 docker run -d -p 8001:8001 \
   -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:6000/jizhang?schema=public" \
+  -e SESSION_COOKIE_SECURE=false \
   --name jizhang jizhang
 ```
 
@@ -57,3 +58,5 @@ docker run -d -p 8001:8001 \
 > 容器启动时会自动执行 `prisma migrate deploy` 创建或更新数据库表结构，无需手动迁移。
 >
 > 如果注册接口返回失败，请检查 PostgreSQL 是否在运行，以及 `DATABASE_URL` 连接信息是否正确。
+>
+> 如果应用通过 HTTPS 反向代理访问，请将 `SESSION_COOKIE_SECURE` 设置为 `true`；直接通过 HTTP 访问时保持为 `false`，否则浏览器不会保存登录会话。

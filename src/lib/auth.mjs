@@ -4,6 +4,9 @@ import { prisma } from "./prisma.mjs";
 
 export const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "jizhang_session";
 const SESSION_DAYS = 7;
+// The production container can be exposed over plain HTTP. Only enable this
+// flag when TLS is terminated before the app (for example by a reverse proxy).
+const SESSION_COOKIE_SECURE = process.env.SESSION_COOKIE_SECURE === "true";
 
 export async function getSessionUser() {
   const cookieStore = await cookies();
@@ -26,7 +29,7 @@ export async function createSession(userId) {
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: SESSION_COOKIE_SECURE,
     expires: expiresAt,
     path: "/",
   });

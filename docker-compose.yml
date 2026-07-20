@@ -8,5 +8,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:fright2014@172.24.21.32:6000/jizhang?schema=public
       - SESSION_COOKIE_NAME=jizhang_session
+      # Set to "true" when the app is only reachable through HTTPS.
+      - SESSION_COOKIE_SECURE=false
       - NODE_ENV=production
     restart: unless-stopped
