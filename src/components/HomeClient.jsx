@@ -1,0 +1,94 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { Button, Empty, Input, SpinLoading, Toast } from "antd-mobile";
+import { currentMonthRange } from "../lib/finance.mjs";
+
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function EntryModal({ entry, onClose, onSaved }) {
+  const [date, setDate] = useState(entry?.date || formatLocalDate(new Date()));
+  const [amount, setAmount] = useState(entry?.amount || "");
+  const [loading, setLoading] = useState(false);
+
+  async function save(event) {
+    event.preventDefault();
+    setLoading(true);
+    try {
+      const response = await fetch(entry ? `/api/entries/${entry.id}` : "/api/entries", {
+        method: entry ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, amount }),
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.message || "保存失败");
+      Toast.show({ content: entry ? "账目已更新" : "账目已新增" });
+      onSaved();
+    } catch (error) {
+      Toast.show({ content: error.message });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <section className="entry-modal" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
+      <div className="modal-header"><h2 id="entry-modal-title">{entry ? "编辑账目" : "新增账目"}</h2><button className="modal-close" type="button" onClick={onClose} aria-label="关闭">×</button></div>
+      <form className="entry-form" onSubmit={save}>
+        <label><span className="field-label">日期</span><input className="date-input" type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></label>
+        <label><span className="field-label">金额</span><Input type="number" min="0" step="0.01" value={amount} onChange={setAmount} placeholder="请输入金额" clearable /></label>
+        <div className="modal-actions"><Button onClick={onClose}>取消</Button><Button color="primary" type="submit" loading={loading}>保存</Button></div>
+      </form>
+    </section>
+  </div>;
+}
+
+export default function HomeClient({ username }) {
+  const initialRange = useMemo(() => currentMonthRange(), []);
+  const [range, setRange] = useState(initialRange);
+  const [data, setData] = useState({ total: "0.00", entries: [] });
+  const [loading, setLoading] = useState(true);
+  const [modalEntry, setModalEntry] = useState(undefined);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  async function loadEntries() {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/entries?startDate=${range.startDate}&endDate=${range.endDate}`, { cache: "no-store" });
+      if (response.status === 401) { window.location.href = "/login"; return; }
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.message || "查询失败");
+      setData(body);
+    } catch (error) {
+      Toast.show({ content: error.message });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadEntries(); }, [range.startDate, range.endDate]);
+
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  }
+
+  function saveCompleted() {
+    setModalOpen(false);
+    setModalEntry(undefined);
+    loadEntries();
+  }
+
+  return <main className="page-shell"><div className="content-wrap">
+    <header className="topbar"><div className="brand-mark"><div className="brand-icon">¥</div><h1>小账本</h1></div><div className="user-actions"><span>{username}</span><button className="logout-button" type="button" onClick={logout}>退出</button></div></header>
+    <section className="summary-card"><div className="eyebrow">筛选范围内总支出</div><div className="summary-amount">¥ {data.total}</div></section>
+    <section className="section-card"><div className="section-heading"><h2>日期范围</h2><span className="eyebrow">自动查询</span></div><div className="date-range"><label><span className="field-label">开始日期</span><input className="date-input" type="date" value={range.startDate} onChange={(event) => setRange((current) => ({ ...current, startDate: event.target.value }))} /></label><span className="date-range-separator">—</span><label><span className="field-label">结束日期</span><input className="date-input" type="date" value={range.endDate} onChange={(event) => setRange((current) => ({ ...current, endDate: event.target.value }))} /></label></div></section>
+    <section className="section-card"><div className="section-heading"><h2>账目明细</h2><Button color="primary" size="small" onClick={() => { setModalEntry(undefined); setModalOpen(true); }}>＋ 新增</Button></div>{loading ? <div className="loading-wrap"><SpinLoading color="primary" /></div> : data.entries.length === 0 ? <div className="empty-wrap"><Empty description="当前范围暂无账目" /></div> : <><div className="table-head"><span>日期</span><span>金额</span><span></span></div>{data.entries.map((entry) => <div className="entry-row" key={entry.id}><span>{entry.date}</span><span className="amount">¥ {entry.amount}</span><button className="edit-button" type="button" onClick={() => { setModalEntry(entry); setModalOpen(true); }}>编辑</button></div>)}</>}</section>
+    {modalOpen && <EntryModal entry={modalEntry} onClose={() => { setModalOpen(false); setModalEntry(undefined); }} onSaved={saveCompleted} />}
+  </div></main>;
+}
