@@ -55,6 +55,7 @@ export default function HomeClient({ username }) {
   const [loading, setLoading] = useState(true);
   const [modalEntry, setModalEntry] = useState(undefined);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(undefined);
 
   async function loadEntries() {
     setLoading(true);
@@ -84,11 +85,27 @@ export default function HomeClient({ username }) {
     loadEntries();
   }
 
+  async function deleteEntry(entry) {
+    if (!window.confirm(`确定删除 ${entry.date} 的账目 ¥ ${entry.amount} 吗？`)) return;
+    setDeletingId(entry.id);
+    try {
+      const response = await fetch(`/api/entries/${entry.id}`, { method: "DELETE" });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.message || "删除失败");
+      Toast.show({ content: "账目已删除" });
+      await loadEntries();
+    } catch (error) {
+      Toast.show({ content: error.message });
+    } finally {
+      setDeletingId(undefined);
+    }
+  }
+
   return <main className="page-shell"><div className="content-wrap">
     <header className="topbar"><div className="brand-mark"><div className="brand-icon">¥</div><h1>小账本</h1></div><div className="user-actions"><span>{username}</span><button className="logout-button" type="button" onClick={logout}>退出</button></div></header>
     <section className="summary-card"><div className="eyebrow">筛选范围内总支出</div><div className="summary-amount">¥ {data.total}</div></section>
     <section className="section-card"><div className="section-heading"><h2>日期范围</h2><span className="eyebrow">自动查询</span></div><div className="date-range"><label><span className="field-label">开始日期</span><input className="date-input" type="date" value={range.startDate} onChange={(event) => setRange((current) => ({ ...current, startDate: event.target.value }))} /></label><span className="date-range-separator">—</span><label><span className="field-label">结束日期</span><input className="date-input" type="date" value={range.endDate} onChange={(event) => setRange((current) => ({ ...current, endDate: event.target.value }))} /></label></div></section>
-    <section className="section-card"><div className="section-heading"><h2>账目明细</h2><Button color="primary" size="small" onClick={() => { setModalEntry(undefined); setModalOpen(true); }}>＋ 新增</Button></div>{loading ? <div className="loading-wrap"><SpinLoading color="primary" /></div> : data.entries.length === 0 ? <div className="empty-wrap"><Empty description="当前范围暂无账目" /></div> : <><div className="table-head"><span>日期</span><span>金额</span><span></span></div>{data.entries.map((entry) => <div className="entry-row" key={entry.id}><span>{entry.date}</span><span className="amount">¥ {entry.amount}</span><button className="edit-button" type="button" onClick={() => { setModalEntry(entry); setModalOpen(true); }}>编辑</button></div>)}</>}</section>
+    <section className="section-card"><div className="section-heading"><h2>账目明细</h2><Button color="primary" size="small" onClick={() => { setModalEntry(undefined); setModalOpen(true); }}>＋ 新增</Button></div>{loading ? <div className="loading-wrap"><SpinLoading color="primary" /></div> : data.entries.length === 0 ? <div className="empty-wrap"><Empty description="当前范围暂无账目" /></div> : <><div className="table-head"><span>日期</span><span>金额</span><span>操作</span></div>{data.entries.map((entry) => <div className="entry-row" key={entry.id}><span>{entry.date}</span><span className="amount">¥ {entry.amount}</span><span className="row-actions"><button className="edit-button" type="button" disabled={deletingId === entry.id} onClick={() => { setModalEntry(entry); setModalOpen(true); }}>编辑</button><button className="delete-button" type="button" disabled={deletingId === entry.id} onClick={() => deleteEntry(entry)}>{deletingId === entry.id ? "删除中" : "删除"}</button></span></div>)}</>}</section>
     {modalOpen && <EntryModal entry={modalEntry} onClose={() => { setModalOpen(false); setModalEntry(undefined); }} onSaved={saveCompleted} />}
   </div></main>;
 }

@@ -16,3 +16,16 @@ export async function PUT(request, { params }) {
     return Response.json({ message: error.message || "编辑失败" }, { status: 400 });
   }
 }
+
+export async function DELETE(request, { params }) {
+  const user = await getSessionUser();
+  if (!user) return unauthorized();
+  try {
+    const { id } = await params;
+    const result = await prisma.entry.deleteMany({ where: { id, userId: user.id } });
+    if (result.count === 0) return Response.json({ message: "账目不存在" }, { status: 404 });
+    return Response.json({ ok: true });
+  } catch (error) {
+    return Response.json({ message: error.message || "删除失败" }, { status: 400 });
+  }
+}
