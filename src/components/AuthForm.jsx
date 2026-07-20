@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Toast } from "antd-mobile";
+import { Button, Input } from "antd-mobile";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function AuthForm({ mode }) {
   const isRegister = mode === "register";
-  const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,9 +24,7 @@ export default function AuthForm({ mode }) {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.message || "操作失败");
-      Toast.show({ content: isRegister ? "注册成功" : "登录成功" });
-      router.replace("/");
-      router.refresh();
+      window.location.replace("/");
     } catch (submitError) {
       setError(submitError.message);
     } finally {

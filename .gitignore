@@ -5,3 +5,4 @@ node_modules/
 *.log
 .superpowers/
 prisma/dev.db
+.pnpm-store/
