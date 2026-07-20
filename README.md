@@ -13,13 +13,13 @@ postgresql://postgres:postgres@localhost:6000/jizhang
 如果本机容器配置不同，请复制 `.env.example` 为 `.env` 并修改 `DATABASE_URL`。
 
 ```bash
-npm install
-npm run prisma:generate
+pnpm install
+pnpm prisma:generate
 npx prisma migrate dev --name init
-npm run dev
+pnpm dev
 ```
 
-打开 <http://localhost:3000>，注册账号后即可使用。
+打开 <http://localhost:8001>，注册账号后即可使用。
 
 ## 功能
 
@@ -35,6 +35,21 @@ npm run dev
 ## 验证
 
 ```bash
-npm test
-npm run build
+pnpm test
+pnpm build
 ```
+
+## Docker 部署
+
+```bash
+# 构建并启动
+docker compose up -d
+
+# 或者手动构建运行
+docker build -t jizhang .
+docker run -d -p 8001:8001 \
+  -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:6000/jizhang?schema=public" \
+  --name jizhang jizhang
+```
+
+> 容器内通过 `host.docker.internal` 访问宿主机 PostgreSQL。如数据库不在本机，请修改 `DATABASE_URL`。

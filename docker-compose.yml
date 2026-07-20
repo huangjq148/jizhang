@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:6000/jizhang?schema=public
+      - SESSION_COOKIE_NAME=jizhang_session
+      - NODE_ENV=production
+    restart: unless-stopped
