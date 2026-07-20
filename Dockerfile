@@ -12,6 +12,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY prisma ./prisma
 RUN npx prisma generate
+# pnpm 将 Prisma runtime 放在虚拟 store 中，复制到稳定路径供运行时镜像使用
+RUN mkdir -p node_modules/.prisma && \
+    cp -R node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/. node_modules/.prisma/
 
 COPY . .
 RUN pnpm run build
@@ -30,8 +33,6 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
