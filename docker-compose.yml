@@ -6,7 +6,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:6000/jizhang?schema=public
+      - DATABASE_URL=postgresql://postgres:fright2014@host.docker.internal:6000/jizhang?schema=public
       - SESSION_COOKIE_NAME=jizhang_session
       - NODE_ENV=production
     restart: unless-stopped
