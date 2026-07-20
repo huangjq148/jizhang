@@ -20,6 +20,14 @@ export function centToAmount(value) {
   return `${Math.floor(value / 100)}.${String(value % 100).padStart(2, "0")}`;
 }
 
+export function centToBalance(value) {
+  if (!Number.isInteger(value)) {
+    throw new Error("结余分值不正确");
+  }
+  const sign = value < 0 ? "-" : "";
+  return `${sign}${centToAmount(Math.abs(value))}`;
+}
+
 export function isCalendarDate(value) {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split("-").map(Number);

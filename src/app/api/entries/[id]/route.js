@@ -7,9 +7,9 @@ export async function PUT(request, { params }) {
   const user = await getSessionUser();
   if (!user) return unauthorized();
   try {
-    const { date, amount } = await request.json();
+    const { date, income, expense } = await request.json();
     const { id } = await params;
-    const result = await prisma.entry.updateMany({ where: { id, userId: user.id }, data: { entryDate: parseCalendarDate(date), amountCent: amountToCent(amount) } });
+    const result = await prisma.entry.updateMany({ where: { id, userId: user.id }, data: { entryDate: parseCalendarDate(date), incomeCent: amountToCent(income), expenseCent: amountToCent(expense) } });
     if (result.count === 0) return Response.json({ message: "账目不存在" }, { status: 404 });
     return Response.json({ ok: true });
   } catch (error) {

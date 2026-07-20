@@ -44,7 +44,8 @@ function DateField({ label, value, onChange, title }) {
 
 function EntryModal({ entry, onClose, onSaved }) {
   const [date, setDate] = useState(entry?.date || formatLocalDate(new Date()));
-  const [amount, setAmount] = useState(entry?.amount || "");
+  const [income, setIncome] = useState(entry?.income || "0.00");
+  const [expense, setExpense] = useState(entry?.expense || "0.00");
   const [loading, setLoading] = useState(false);
 
   async function save(event) {
@@ -56,7 +57,7 @@ function EntryModal({ entry, onClose, onSaved }) {
         {
           method: entry ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date, amount }),
+          body: JSON.stringify({ date, income, expense }),
         },
       );
       const body = await response.json();
@@ -96,14 +97,26 @@ function EntryModal({ entry, onClose, onSaved }) {
         <form className="entry-form" onSubmit={save}>
           <DateField label="日期" value={date} onChange={setDate} title="选择日期" />
           <label>
-            <span className="field-label">金额</span>
+            <span className="field-label">收入</span>
             <Input
               type="number"
               min="0"
               step="0.01"
-              value={amount}
-              onChange={setAmount}
-              placeholder="请输入金额"
+              value={income}
+              onChange={setIncome}
+              placeholder="请输入收入"
+              clearable
+            />
+          </label>
+          <label>
+            <span className="field-label">支出</span>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={expense}
+              onChange={setExpense}
+              placeholder="请输入支出"
               clearable
             />
           </label>
@@ -122,7 +135,7 @@ function EntryModal({ entry, onClose, onSaved }) {
 export default function HomeClient({ username }) {
   const initialRange = useMemo(() => currentMonthRange(), []);
   const [range, setRange] = useState(initialRange);
-  const [data, setData] = useState({ total: "0.00", entries: [] });
+  const [data, setData] = useState({ balance: "0.00", totalIncome: "0.00", totalExpense: "0.00", entries: [] });
   const [loading, setLoading] = useState(true);
   const [modalEntry, setModalEntry] = useState(undefined);
   const [modalOpen, setModalOpen] = useState(false);
@@ -165,7 +178,7 @@ export default function HomeClient({ username }) {
   }
 
   async function deleteEntry(entry) {
-    if (!window.confirm(`确定删除 ${entry.date} 的账目 ¥ ${entry.amount} 吗？`))
+    if (!window.confirm(`确定删除 ${entry.date} 的账目吗？`))
       return;
     setDeletingId(entry.id);
     try {
@@ -199,8 +212,18 @@ export default function HomeClient({ username }) {
           </div>
         </header>
         <section className="summary-card">
-          <div className="eyebrow">筛选范围内总支出</div>
-          <div className="summary-amount">¥ {data.total}</div>
+          <div className="eyebrow">筛选范围内结余</div>
+          <div className="summary-amount">¥ {data.balance}</div>
+          <div className="summary-breakdown">
+            <div>
+              <span>总收入</span>
+              <strong>¥ {data.totalIncome}</strong>
+            </div>
+            <div>
+              <span>总支出</span>
+              <strong>¥ {data.totalExpense}</strong>
+            </div>
+          </div>
         </section>
         <section className="section-card">
           <div className="date-range">
@@ -243,13 +266,16 @@ export default function HomeClient({ username }) {
             <>
               <div className="table-head">
                 <span>日期</span>
-                <span>金额</span>
+                <span>收支</span>
                 <span>操作</span>
               </div>
               {data.entries.map((entry) => (
                 <div className="entry-row" key={entry.id}>
                   <span>{entry.date}</span>
-                  <span className="amount">¥ {entry.amount}</span>
+                  <span className="amount transaction-values">
+                    <span className="income-amount">收：{entry.income}</span>
+                    <span className="expense-amount">支：{entry.expense}</span>
+                  </span>
                   <span className="row-actions">
                     <button
                       className="edit-button"

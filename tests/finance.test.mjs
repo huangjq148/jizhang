@@ -1,11 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { amountToCent, centToAmount, currentMonthRange, isCalendarDate } from "../src/lib/finance.mjs";
+import { amountToCent, centToAmount, centToBalance, currentMonthRange, isCalendarDate } from "../src/lib/finance.mjs";
 
 test("converts strict decimal money strings to integer cents", () => {
   assert.equal(amountToCent("12.3"), 1230);
   assert.equal(amountToCent("0"), 0);
   assert.equal(centToAmount(1230), "12.30");
+  assert.equal(centToBalance(1230), "12.30");
+  assert.equal(centToBalance(-1230), "-12.30");
 });
 
 test("rejects negative, exponent, three-decimal and empty amounts", () => {

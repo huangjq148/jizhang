@@ -1,0 +1,2 @@
+ALTER TABLE "Entry" RENAME COLUMN "amountCent" TO "incomeCent";
+ALTER TABLE "Entry" ADD COLUMN "expenseCent" INTEGER NOT NULL DEFAULT 0;
