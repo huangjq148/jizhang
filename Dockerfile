@@ -19,7 +19,7 @@ RUN mkdir -p node_modules/.prisma && \
 COPY . .
 RUN pnpm run build
 
-# 仅保留生产依赖
+# Prisma CLI 位于生产 dependencies，prune 后仍可供容器启动时执行 migrate deploy
 RUN pnpm prune --prod
 
 # ============================================
@@ -37,9 +37,8 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma 运行时需要
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# 复制 prune 后的生产依赖（包括 Prisma CLI、引擎及 pnpm 链接）
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 
 COPY docker-entrypoint.sh ./
