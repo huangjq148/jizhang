@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, DatePicker, Empty, Input, SpinLoading, Toast } from "antd-mobile";
+import { createRoot } from "react-dom/client";
+import { Button, DatePicker, Empty, Input, SpinLoading, Toast, unstableSetRender } from "antd-mobile";
 import { currentMonthRange } from "../lib/finance.mjs";
+
+unstableSetRender((node, container) => {
+  const root = createRoot(container);
+  root.render(node);
+  return () => root.unmount();
+});
 
 function formatLocalDate(date) {
   const year = date.getFullYear();
