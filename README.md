@@ -53,3 +53,7 @@ docker run -d -p 8001:8001 \
 ```
 
 > 容器内通过 `host.docker.internal` 访问宿主机 PostgreSQL。如数据库不在本机，请修改 `DATABASE_URL`。
+>
+> 容器启动时会自动执行 `prisma migrate deploy` 创建或更新数据库表结构，无需手动迁移。
+>
+> 如果注册接口返回失败，请检查 PostgreSQL 是否在运行，以及 `DATABASE_URL` 连接信息是否正确。
