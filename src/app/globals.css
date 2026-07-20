@@ -46,7 +46,7 @@ a { color: var(--blue); text-decoration: none; }
 .entry-row { min-height: 54px; font-size: 14px; border-bottom: 1px solid #f0f2f5; }
 .entry-row:last-child { border-bottom: 0; }
 .amount { font-variant-numeric: tabular-nums; font-weight: 700; }
-.row-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.row-actions { display: flex; justify-content: flex-start; align-items: center; gap: 8px; }
 .edit-button, .delete-button { min-width: 44px; min-height: 44px; border: 0; background: transparent; cursor: pointer; padding: 8px 0; text-align: center; }
 .edit-button { color: var(--blue); }
 .delete-button { color: #d92d20; }

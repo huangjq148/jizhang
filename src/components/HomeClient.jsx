@@ -203,20 +203,14 @@ export default function HomeClient({ username }) {
           <div className="summary-amount">¥ {data.total}</div>
         </section>
         <section className="section-card">
-          <div className="section-heading">
-            <h2>日期范围</h2>
-            <span className="eyebrow">自动查询</span>
-          </div>
           <div className="date-range">
             <DateField
-              label="开始日期"
               value={range.startDate}
               onChange={(startDate) => setRange((current) => ({ ...current, startDate }))}
               title="选择开始日期"
             />
             <span className="date-range-separator">—</span>
             <DateField
-              label="结束日期"
               value={range.endDate}
               onChange={(endDate) => setRange((current) => ({ ...current, endDate }))}
               title="选择结束日期"
