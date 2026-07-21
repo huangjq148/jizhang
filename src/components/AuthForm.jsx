@@ -46,8 +46,8 @@ export default function AuthForm({ mode }) {
           <Button block color="primary" size="large" type="submit" loading={loading}>{isRegister ? "注册并登录" : "登录"}</Button>
         </form>
         <p className="auth-footer">{isRegister ? "已有账号？" : "还没有账号？"}<Link href={isRegister ? "/login" : "/register"}>{isRegister ? "去登录" : "立即注册"}</Link></p>
-        <p className="icp-filing"><a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer">闽ICP备2022000916号-1</a></p>
       </section>
+      <p className="icp-filing"><a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer">闽ICP备2022000916号-1</a></p>
     </main>
   );
 }
