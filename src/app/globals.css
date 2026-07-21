@@ -54,7 +54,7 @@ a { color: var(--blue); text-decoration: none; }
 .table-head { color: #98a2b3; font-size: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .entry-row { min-height: 54px; font-size: 14px; border-bottom: 1px solid #f0f2f5; }
 .entry-row:last-child { border-bottom: 0; }
-.amount { font-variant-numeric: tabular-nums; font-weight: 700; }
+.amount { font-variant-numeric: tabular-nums; }
 .transaction-values { display: grid; gap: 4px; line-height: 1.35; }
 .income-amount { color: var(--adm-color-success, #00b578); }
 .expense-amount { color: var(--adm-color-danger, #ff3141); }
