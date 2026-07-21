@@ -56,8 +56,8 @@ a { color: var(--blue); text-decoration: none; }
 .entry-row:last-child { border-bottom: 0; }
 .amount { font-variant-numeric: tabular-nums; font-weight: 700; }
 .transaction-values { display: grid; gap: 4px; line-height: 1.35; }
-.income-amount { color: #087443; }
-.expense-amount { color: #c4320a; }
+.income-amount { color: var(--adm-color-success, #00b578); }
+.expense-amount { color: var(--adm-color-danger, #ff3141); }
 .row-actions { display: flex; justify-content: flex-start; align-items: center; gap: 4px; }
 .edit-button, .delete-button { min-width: 38px; min-height: 44px; border: 0; background: transparent; cursor: pointer; padding: 8px 0; text-align: center; }
 .edit-button { color: var(--blue); }
