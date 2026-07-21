@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Button, DatePicker, Empty, Input, SpinLoading, Toast, unstableSetRender } from "antd-mobile";
+import * as XLSX from "xlsx";
 import { currentMonthRange } from "../lib/finance.mjs";
 
 unstableSetRender((node, container) => {
@@ -21,6 +22,10 @@ function formatLocalDate(date) {
 function parseLocalDate(value) {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, month - 1, day);
+}
+
+function amountNumber(value) {
+  return Number.parseFloat(value || "0");
 }
 
 function DateField({ label, value, onChange, title }) {
@@ -196,6 +201,35 @@ export default function HomeClient({ username }) {
     }
   }
 
+  function exportEntries() {
+    if (data.entries.length === 0) {
+      Toast.show({ content: "当前范围暂无可导出的账目" });
+      return;
+    }
+
+    const rows = [
+      ["小账本账目明细"],
+      ["统计范围", `${range.startDate} 至 ${range.endDate}`],
+      [],
+      ["日期", "收入（元）", "支出（元）", "结余（元）"],
+      ...data.entries.map((entry) => [
+        entry.date,
+        amountNumber(entry.income),
+        amountNumber(entry.expense),
+        amountNumber(entry.income) - amountNumber(entry.expense),
+      ]),
+      [],
+      ["合计", amountNumber(data.totalIncome), amountNumber(data.totalExpense), amountNumber(data.balance)],
+    ];
+    const sheet = XLSX.utils.aoa_to_sheet(rows);
+    sheet["!cols"] = [{ wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+    sheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, "账目明细");
+    XLSX.writeFile(workbook, `小账本-${range.startDate}-${range.endDate}.xlsx`);
+    Toast.show({ content: "Excel 已导出" });
+  }
+
   return (
     <main className="page-shell">
       <div className="content-wrap">
@@ -243,16 +277,26 @@ export default function HomeClient({ username }) {
         <section className="section-card">
           <div className="section-heading">
             <h2>账目明细</h2>
-            <Button
-              color="primary"
-              size="small"
-              onClick={() => {
-                setModalEntry(undefined);
-                setModalOpen(true);
-              }}
-            >
-              ＋ 新增
-            </Button>
+            <div className="section-actions">
+              <Button
+                size="small"
+                className="export-button"
+                disabled={loading || data.entries.length === 0}
+                onClick={exportEntries}
+              >
+                导出 Excel
+              </Button>
+              <Button
+                color="primary"
+                size="small"
+                onClick={() => {
+                  setModalEntry(undefined);
+                  setModalOpen(true);
+                }}
+              >
+                ＋ 新增
+              </Button>
+            </div>
           </div>
           {loading ? (
             <div className="loading-wrap">

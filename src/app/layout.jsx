@@ -6,6 +6,11 @@ export const metadata = {
   description: "简单、清晰的个人记账工具",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
